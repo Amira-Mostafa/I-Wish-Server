@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/11" 
+            xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="com.example.client.controllers.FriendsController">
+    
+    <top>
+        <HBox style="-fx-background-color: white; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 15, 0, 0, 5);">
+            <padding>
+                <Insets bottom="15" left="30" right="30" top="15" />
+            </padding>
+            
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="🎁 i-Wish" style="-fx-font-weight: bold; -fx-text-fill: #764ba2; -fx-font-size: 24;" />
+                <Label text="Make wishes true" style="-fx-font-size: 14; -fx-text-fill: gray;" />
+            </HBox>
+            
+            <Region HBox.hgrow="ALWAYS" />
+            
+            <HBox alignment="CENTER_RIGHT" spacing="15">
+                <Button fx:id="logoutBtn" text="Logout" onAction="#handleLogout" 
+                        style="-fx-background-color: #f8f9fa; -fx-text-fill: #333; -fx-background-radius: 8; -fx-border-color: #e0e0e0; -fx-border-radius: 8; -fx-border-width: 1; -fx-cursor: hand; -fx-padding: 8 15;" />
+            </HBox>
+        </HBox>
+    </top>
+    
+    <left>
+        <VBox spacing="10" style="-fx-background-color: #f8f9fa;" prefWidth="250">
+            <padding>
+                <Insets bottom="30" left="20" right="20" top="30" />
+            </padding>
+            
+            <Label text="Navigation" style="-fx-font-weight: bold; -fx-text-fill: #764ba2; -fx-font-size: 16;">
+                <padding>
+                    <Insets bottom="10" left="20" right="20" top="0" />
+                </padding>
+            </Label>
+            
+            <Button fx:id="dashboardBtn" text="📊 Dashboard" onAction="#handleDashboard" 
+                    style="-fx-background-color: transparent; -fx-text-fill: #333; -fx-font-weight: normal;" 
+                    prefWidth="210" prefHeight="45" alignment="CENTER_LEFT" />
+            
+            <Button fx:id="friendsBtn" text="👥 Friends" onAction="#handleFriends" 
+                    style="-fx-background-color: #764ba2; -fx-text-fill: white; -fx-font-weight: bold;" 
+                    prefWidth="210" prefHeight="45" alignment="CENTER_LEFT" />
+            
+            <Button fx:id="wishListBtn" text="🎯 My Wish List" onAction="#handleWishList" 
+                    style="-fx-background-color: transparent; -fx-text-fill: #333; -fx-font-weight: normal;" 
+                    prefWidth="210" prefHeight="45" alignment="CENTER_LEFT" />
+            
+            <Button fx:id="notificationsBtn" text="🔔 Notifications" onAction="#handleNotifications" 
+                    style="-fx-background-color: transparent; -fx-text-fill: #333; -fx-font-weight: normal;" 
+                    prefWidth="210" prefHeight="45" alignment="CENTER_LEFT" />
+        </VBox>
+    </left>
+    
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-border-color: transparent;">
+            <VBox fx:id="contentArea" spacing="20" style="-fx-background-color: #f8f9fa;">
+                <padding>
+                    <Insets bottom="30" left="30" right="30" top="30" />
+                </padding>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

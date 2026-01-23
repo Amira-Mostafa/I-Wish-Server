@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="TOP_CENTER" spacing="20" style="-fx-background-color: #f8f9fa;" 
+      xmlns="http://javafx.com/javafx/11" 
+      xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="com.example.client.controllers.ContributionController">
+    
+    <padding>
+        <Insets top="30" right="30" bottom="30" left="30"/>
+    </padding>
+    
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <Label text="🎁 Contribute to Gift" style="-fx-font-weight: bold; -fx-text-fill: #764ba2; -fx-font-size: 24;" />
+    </HBox>
+    
+    <VBox spacing="15" style="-fx-background-color: white; -fx-background-radius: 15; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 15, 0, 0, 3);">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+        
+        <Label text="Contribution Amount" style="-fx-font-weight: bold; -fx-font-size: 16;" />
+        
+        <TextField fx:id="amountField" promptText="0.00" prefHeight="45" 
+                   style="-fx-background-radius: 8; -fx-border-radius: 8; -fx-border-color: #e0e0e0; -fx-padding: 10;" />
+        
+        <Label fx:id="remainingAmountLabel" style="-fx-text-fill: #666; -fx-font-size: 12; -fx-padding: 5 0 0 0;" />
+        
+        <Label fx:id="errorLabel" style="-fx-text-fill: #f44336; -fx-font-size: 12;" visible="false" wrapText="true" />
+        
+        <HBox spacing="20" alignment="CENTER">
+            <padding>
+                <Insets top="20"/>
+            </padding>
+            
+            <Button fx:id="contributeButton" text="Confirm Contribution" prefWidth="180" prefHeight="45" 
+                    style="-fx-background-color: linear-gradient(to right, #4CAF50, #2E7D32); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 8;" />
+            
+            <Button fx:id="cancelButton" text="Cancel" prefWidth="150" prefHeight="45" 
+                    style="-fx-background-color: #f8f9fa; -fx-text-fill: #333; -fx-background-radius: 8; -fx-border-color: #e0e0e0; -fx-border-radius: 8; -fx-border-width: 1;" />
+        </HBox>
+    </VBox>
+</VBox>
