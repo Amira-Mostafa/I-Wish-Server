@@ -2,11 +2,11 @@ package com.example.server.services;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.SQLException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.example.server.handlers.ClientHandler;
+import com.example.server.socket.ClientSession;
 
 public class WishServer {
     private static final int PORT = 8888;
@@ -29,7 +29,8 @@ public class WishServer {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("New client connected: " + clientSocket.getInetAddress());
                 
-                ClientHandler handler = new ClientHandler(clientSocket);
+                ClientSession session = new ClientSession(clientSocket);
+                ClientHandler handler = new ClientHandler(session);
                 threadPool.execute(handler);
                 
             } catch (IOException e) {
@@ -39,8 +40,15 @@ public class WishServer {
     }
     
     
-    public static void main(String[] args) throws SQLException {
-        WishServer server = new WishServer();
-        server.start();
+    public static void main(String[] args){
+        try {
+            DatabaseConnection.getConnection();
+            System.out.println("✓ Database ready");
+
+            new WishServer().start();
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -1,11 +1,12 @@
 package com.example.client;
 
+import com.example.server.services.WishServer;
+
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import com.example.server.services.WishServer;
 
 public class App extends Application {
 
