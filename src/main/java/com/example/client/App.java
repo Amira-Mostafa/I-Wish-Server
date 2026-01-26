@@ -1,7 +1,6 @@
 package com.example.client;
 
-import com.example.server.services.WishServer;
-
+import com.example.client.utils.ServerMonitor;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -12,40 +11,38 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-    
 
-        // Start the server in a separate thread
-        Thread serverThread = new Thread(() -> {
-            try {
-                WishServer server = new WishServer();
-                if (server != null) {
-                    server.start();
-                }
-            } catch (Exception e) {
-                // If server is already running, that's okay - just continue
-                if (e.getMessage() != null && e.getMessage().contains("Address already in use")) {
-                    System.out.println("Server already running on port 8888, continuing...");
-                } else {
-                    System.err.println("Failed to start server: " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-        });
-        serverThread.setDaemon(true); // Allow JVM to exit even if server thread is running
-        serverThread.start();
-        
-        // Give the server a moment to start
-        Thread.sleep(1000);
+        // Load initial scene based on server state
+        boolean serverUp = checkServerOnce();
+        String initialFXML = serverUp ?
+                "/com/example/views/login.fxml" :
+                "/com/example/views/notAvailableServer.fxml";
 
-        Parent root = FXMLLoader.load(getClass().getResource("/com/example/views/login.fxml"));
-        
-        Scene scene = new Scene(root, 1550, 800);
-        
-        stage.setTitle("🎁 I-Wish - Make wishes come true together");
-        stage.setMinWidth(1000);
-        stage.setMinHeight(700);
-        stage.setScene(scene);
+        Parent root = FXMLLoader.load(getClass().getResource(initialFXML));
+        stage.setScene(new Scene(root, 1550, 800));
+        stage.setTitle("🎁 i-Wish");
         stage.show();
+
+        // Start background monitoring for live switching
+        ServerMonitor.getInstance().startMonitoring(
+                stage,
+                "/com/example/views/login.fxml",
+                "/com/example/views/notAvailableServer.fxml"
+        );
+    }
+
+    private boolean checkServerOnce() {
+        try (java.net.Socket socket = new java.net.Socket("localhost", 8888)) {
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    @Override
+    public void stop() throws Exception {
+        super.stop();
+        ServerMonitor.getInstance().stopMonitoring();
     }
 
     public static void main(String[] args) {

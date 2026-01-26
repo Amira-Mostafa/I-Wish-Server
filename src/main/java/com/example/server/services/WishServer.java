@@ -1,4 +1,5 @@
 package com.example.server.services;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -9,45 +10,52 @@ import com.example.server.handlers.ClientHandler;
 import com.example.server.socket.ClientSession;
 
 public class WishServer {
+
     private static final int PORT = 8888;
+
     private ServerSocket serverSocket;
     private ExecutorService threadPool;
-    
+    private volatile boolean running = true;
+
     public WishServer() {
         try {
             serverSocket = new ServerSocket(PORT);
-            threadPool = Executors.newFixedThreadPool(10); 
+            threadPool = Executors.newFixedThreadPool(10);
             System.out.println("🎁 i-Wish Server started on port " + PORT);
         } catch (IOException e) {
-            System.err.println("Failed to start server: " + e.getMessage());
+            throw new RuntimeException("Failed to start server", e);
         }
     }
-    
-     public void start(){
-        while (true) {
+
+    public void start() {
+        while (running) {
             try {
                 Socket clientSocket = serverSocket.accept();
                 System.out.println("New client connected: " + clientSocket.getInetAddress());
-                
+
                 ClientSession session = new ClientSession(clientSocket);
                 ClientHandler handler = new ClientHandler(session);
                 threadPool.execute(handler);
-                
+
             } catch (IOException e) {
-                System.err.println("Error accepting client: " + e.getMessage());
+                if (running) {
+                    System.err.println("Server error: " + e.getMessage());
+                }
             }
         }
     }
-    
-    
-    public static void main(String[] args){
-        try {
-            DatabaseConnection.getConnection();
-            System.out.println(" Database ready");
 
-            new WishServer().start();
-            
-        } catch (Exception e) {
+    public void stop() {
+        running = false;
+        try {
+            if (serverSocket != null) {
+                serverSocket.close();
+            }
+            if (threadPool != null) {
+                threadPool.shutdownNow();
+            }
+            System.out.println("🛑 Server stopped");
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

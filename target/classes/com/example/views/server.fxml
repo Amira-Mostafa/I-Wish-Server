@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox alignment="CENTER" spacing="25"
+      style="-fx-background-color: linear-gradient(to bottom, #667eea 0%, #764ba2 100%);"
+      xmlns="http://javafx.com/javafx/11"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.example.server.controllers.ServerController">
+
+    <padding>
+        <Insets top="40" right="40" bottom="40" left="40"/>
+    </padding>
+
+    <Label text="🎁 i-Wish Server"
+           style="-fx-text-fill: white;">
+        <font>
+            <Font size="42"/>
+        </font>
+    </Label>
+
+    <Label text="Server Control Panel"
+           style="-fx-text-fill: white;">
+        <font>
+            <Font size="18"/>
+        </font>
+    </Label>
+
+    <VBox spacing="20" alignment="CENTER"
+          style="-fx-background-color: white;
+                 -fx-background-radius: 15;
+                 -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0, 0, 5);"
+          maxWidth="400">
+
+        <padding>
+            <Insets top="30" right="40" bottom="30" left="40"/>
+        </padding>
+
+        <Label fx:id="statusLabel"
+               text="Server is stopped"
+               style="-fx-text-fill: #e53935; -fx-font-weight: bold;"/>
+
+        <Button fx:id="startButton"
+                text="▶ Start Server"
+                prefWidth="220"
+                prefHeight="45"
+                onAction="#startServer"/>
+
+        <Button fx:id="stopButton"
+                text="⏹ Stop Server"
+                prefWidth="220"
+                prefHeight="45"
+                disable="true"
+                onAction="#stopServer"/>
+
+    </VBox>
+
+</VBox>
