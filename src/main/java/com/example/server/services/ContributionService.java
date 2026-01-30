@@ -126,7 +126,7 @@ public class ContributionService {
             // 4. CREATE IMMEDIATE NOTIFICATION (separate from trigger)
             // This is for the "someone contributed" notification, not the "wish completed" notification
             String notifSql = "INSERT INTO notifications (notification_id, receiver_id, wish_id, type, message) " +
-                            "VALUES (notifications_seq.NEXTVAL, ?, ?, 'WISH_BOUGHT', ?)";
+                            "VALUES (notifications_seq.NEXTVAL, ?, ?, 'CONTRIBUTION', ?)";
             
             PreparedStatement notifStmt = conn.prepareStatement(notifSql);
             notifStmt.setInt(1, ownerId);
