@@ -225,79 +225,97 @@ CREATE TABLE notifications (
         REFERENCES wishes (wish_id),
 
     CONSTRAINT notifications_type_ck
-        CHECK (type IN ('WISH_COMPLETED', 'WISH_BOUGHT', 'WISH_FUNDED')),
+        CHECK (type IN ('WISH_COMPLETED', 'CONTRIBUTION')),
 
     CONSTRAINT notifications_is_read_ck
         CHECK (is_read IN ('Y', 'N'))
 );
-CREATE OR REPLACE TRIGGER users_contrib_all_trg
-FOR INSERT ON users_contributions
-COMPOUND TRIGGER
 
-    TYPE t_contrib IS RECORD (
-        wish_id users_contributions.wish_id%TYPE,
-        user_id users_contributions.user_id%TYPE
+CREATE OR REPLACE TRIGGER wishes_notifications_trg
+AFTER UPDATE OF is_completed ON wishes
+FOR EACH ROW
+WHEN (OLD.is_completed = 'N' AND NEW.is_completed = 'Y')
+DECLARE
+
+    CURSOR c_contributors IS
+        SELECT DISTINCT user_id
+        FROM users_contributions
+        WHERE wish_id = :NEW.wish_id
+          AND user_id != :NEW.user_id; 
+BEGIN
+    -- Notify owner
+    INSERT INTO notifications (
+        notification_id,
+        receiver_id,
+        wish_id,
+        type,
+        message,
+        is_read
+    )
+    VALUES (
+        notifications_seq.NEXTVAL,
+        :NEW.user_id,
+        :NEW.wish_id,
+        'WISH_COMPLETED',
+        'Your wish "' || :NEW.name || '" has been completed 🎉',
+        'N'
     );
 
-    TYPE t_contribs IS TABLE OF t_contrib INDEX BY PLS_INTEGER;
-    g_contribs t_contribs;
-    g_idx PLS_INTEGER := 0;
+    -- Notify all contributors
+   FOR r IN (
+    SELECT DISTINCT user_id
+    FROM users_contributions
+    WHERE wish_id = :NEW.wish_id
+      AND user_id != :NEW.user_id
+) LOOP
 
-    AFTER EACH ROW IS
-    BEGIN
-        g_idx := g_idx + 1;
-        g_contribs(g_idx).wish_id := :NEW.wish_id;
-        g_contribs(g_idx).user_id := :NEW.user_id;
-    END AFTER EACH ROW;
+        INSERT INTO notifications (
+            notification_id,
+            receiver_id,
+            wish_id,
+            type,
+            message,
+            is_read
+        )
+        VALUES (
+            notifications_seq.NEXTVAL,
+            r.user_id,
+            :NEW.wish_id,
+            'WISH_COMPLETED',
+            'The wish "' || :NEW.name || '" you contributed to is completed 🎉',
+            'N'
+        );
+    END LOOP;
+END;
+/
 
-    AFTER STATEMENT IS
-    DECLARE
-        v_owner_id users.user_id%TYPE;
-        v_name     users.name%TYPE;
-        v_total    NUMBER;
-        v_price    NUMBER;
-    BEGIN
-        FOR i IN 1 .. g_contribs.COUNT LOOP
+CREATE OR REPLACE TRIGGER contribution_notify_owner_trg
+AFTER INSERT ON users_contributions
+FOR EACH ROW
+DECLARE
+    v_owner_id users.user_id%TYPE;
+    v_wish_name wishes.name%TYPE;
+BEGIN
+    SELECT user_id, name
+    INTO v_owner_id, v_wish_name
+    FROM wishes
+    WHERE wish_id = :NEW.wish_id;
 
-            -- owner
-            SELECT user_id INTO v_owner_id
-            FROM wishes
-            WHERE wish_id = g_contribs(i).wish_id;
-
-            -- contributor name
-            SELECT name INTO v_name
-            FROM users
-            WHERE user_id = g_contribs(i).user_id;
-
-            -- notify owner (CONTRIBUTED)
-            IF v_owner_id != g_contribs(i).user_id THEN
-                INSERT INTO notifications
-                VALUES (
-                    notifications_seq.NEXTVAL,
-                    v_owner_id,
-                    g_contribs(i).wish_id,
-                    'WISH_CONTRIBUTED',
-                    v_name || ' contributed to your wish',
-                    'N'
-                );
-            END IF;
-
-            -- completion check
-            SELECT NVL(SUM(amount),0), price
-            INTO v_total, v_price
-            FROM users_contributions u
-            JOIN wishes w ON u.wish_id = w.wish_id
-            WHERE u.wish_id = g_contribs(i).wish_id
-            GROUP BY price;
-
-            IF v_total >= v_price THEN
-                UPDATE wishes
-                SET is_completed = 'Y'
-                WHERE wish_id = g_contribs(i).wish_id
-                  AND is_completed = 'N';
-            END IF;
-
-        END LOOP;
-    END AFTER STATEMENT;
+    INSERT INTO notifications (
+        notification_id,
+        receiver_id,
+        wish_id,
+        type,
+        message,
+        is_read
+    )
+    VALUES (
+        notifications_seq.NEXTVAL,
+        v_owner_id,
+        :NEW.wish_id,
+        'CONTRIBUTION',
+       'Someone contributed to your wish "' || v_wish_name || '" 🎁',
+        'N'
+    );
 END;
 /
