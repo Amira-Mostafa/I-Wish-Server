@@ -6,7 +6,6 @@ public class FriendRequest {
     private String status;
     private String requesterName;
     
-    // Constructors
     public FriendRequest() {}
     
     public FriendRequest(int requesterId, int receiverId, String status, String requesterName) {
@@ -16,7 +15,6 @@ public class FriendRequest {
         this.requesterName = requesterName;
     }
     
-    // Getters and Setters
     public int getRequesterId() { return requesterId; }
     public void setRequesterId(int requesterId) { this.requesterId = requesterId; }
     
