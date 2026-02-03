@@ -257,7 +257,7 @@ BEGIN
         :NEW.user_id,
         :NEW.wish_id,
         'WISH_COMPLETED',
-        'Your wish "' || :NEW.name || '" has been completed 🎉',
+        'Your wish "' || :NEW.name || '" has been completed',
         'N'
     );
 
@@ -282,7 +282,7 @@ BEGIN
             r.user_id,
             :NEW.wish_id,
             'WISH_COMPLETED',
-            'The wish "' || :NEW.name || '" you contributed to is completed 🎉',
+            'The wish "' || :NEW.name || '" you contributed to is completed',
             'N'
         );
     END LOOP;
