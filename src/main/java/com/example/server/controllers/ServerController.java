@@ -5,6 +5,7 @@ import com.example.server.services.WishServer;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.stage.Stage;
 
 public class ServerController {
 
@@ -47,4 +48,19 @@ public class ServerController {
         startButton.setDisable(false);
         stopButton.setDisable(true);
     }
+
+    // Automatically stop server when window closes
+    @FXML
+    public void initialize() {
+        javafx.application.Platform.runLater(() -> {
+            Stage stage = (Stage) startButton.getScene().getWindow();
+            if (stage != null) {
+                stage.setOnCloseRequest(event -> {
+                    if (server != null) {
+                        server.stop();
+                    }
+                });
+            }
+        });
+    }   
 }
