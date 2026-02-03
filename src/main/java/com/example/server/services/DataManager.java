@@ -17,8 +17,6 @@ import com.example.models.Wish;
 
 public class DataManager {
     private static DataManager instance;
-    // Use ThreadLocal to ensure each thread has its own currentUser
-    // This prevents multi-user conflicts when multiple users access simultaneously
     private static final ThreadLocal<User> currentUserThreadLocal = new ThreadLocal<>();
     
     public static DataManager getInstance() {
@@ -28,17 +26,14 @@ public class DataManager {
         return instance;
     }
     
-    // Thread-safe getter for currentUser
     private User getCurrentUserThreadLocal() {
         return currentUserThreadLocal.get();
     }
     
-    // Thread-safe setter for currentUser
     private void setCurrentUserThreadLocal(User user) {
         currentUserThreadLocal.set(user);
     }
     
-    // Helper method to get current user with null check
     private User requireCurrentUser() {
         User user = getCurrentUser();
         if (user == null) {
@@ -47,7 +42,6 @@ public class DataManager {
         return user;
     }
 
-    // ========== USER METHODS ==========
     
     public boolean login(String email, String password) {
         System.out.println("=== DataManager.login() ===");
@@ -92,7 +86,6 @@ public class DataManager {
         System.out.println("Registering: " + name + " (" + email + ")");
         System.out.println("Image path: " + (imagePath != null && !imagePath.isEmpty() ? imagePath : "none"));
         
-        // First, check if email already exists
         String checkSql = "SELECT COUNT(*) as count FROM users WHERE email = ?";
         
         try (Connection conn = DatabaseConnection.getConnection();
@@ -111,7 +104,6 @@ public class DataManager {
             return false;
         }
         
-        // If email doesn't exist, proceed with registration
         String sql = "INSERT INTO users (user_id, name, email, password_hash, image_path) VALUES (users_seq.NEXTVAL, ?, ?, ?, ?)";
         
         try (Connection conn = DatabaseConnection.getConnection();
@@ -120,7 +112,6 @@ public class DataManager {
             pstmt.setString(1, name);
             pstmt.setString(2, email);
             pstmt.setString(3, password);
-            // Set image_path - use null if empty
             if (imagePath != null && !imagePath.trim().isEmpty()) {
                 pstmt.setString(4, imagePath);
             } else {
@@ -131,8 +122,7 @@ public class DataManager {
             System.out.println("Registration rows affected: " + rows);
             
             if (rows > 0) {
-                // After successful registration, set the currentUser
-                // Get the newly created user's ID
+
                 String getUserIdSql = "SELECT user_id, name, email, image_path FROM users WHERE email = ?";
                 try (PreparedStatement getUserStmt = conn.prepareStatement(getUserIdSql)) {
                     getUserStmt.setString(1, email);
@@ -170,17 +160,15 @@ public class DataManager {
         setCurrentUserThreadLocal(user);
     }
     
-    // Legacy field removed - using ThreadLocal instead for thread safety
     
     public void logout() {
         System.out.println("=== DataManager.logout() ===");
         User user = getCurrentUser();
         System.out.println("Logging out user: " + (user != null ? user.getName() : "none"));
         setCurrentUser(null);
-        currentUserThreadLocal.remove(); // Clean up thread-local
+        currentUserThreadLocal.remove(); 
     }
     
-    // ========== FRIEND METHODS ==========
     
     public List<User> getFriends() {
         List<User> friends = new ArrayList<>();
@@ -233,7 +221,6 @@ public class DataManager {
         System.out.println("=== getAllUsers called ===");
         System.out.println("Current User ID: " + currentUser.getUserId());
         
-        // Get all users except self and accepted friends
         String sql = "SELECT u.user_id, u.name, u.email, u.image_path " +
                      "FROM users u " +
                      "WHERE u.user_id != ? " +
@@ -284,13 +271,11 @@ public class DataManager {
         System.out.println("Query: '" + query + "'");
         System.out.println("Current User ID: " + currentUser.getUserId());
         
-        // If query is empty or just whitespace, return all users
         if (query == null || query.trim().isEmpty()) {
             System.out.println("Query is empty, returning all users");
             return getAllUsers();
         }
         
-        // Search query - exclude self and accepted friends
         String sql = "SELECT u.user_id, u.name, u.email, u.image_path " +
                      "FROM users u " +
                      "WHERE (LOWER(u.name) LIKE ? OR LOWER(u.email) LIKE ?) " +
@@ -373,7 +358,6 @@ public class DataManager {
             return false;
         }
         
-        // Check if friend request already exists (any status)
         String checkSql = "SELECT status FROM users_friends " +
                          "WHERE (requester_id = ? AND receiver_id = ?) OR (requester_id = ? AND receiver_id = ?)";
         
@@ -395,8 +379,7 @@ public class DataManager {
                     System.out.println("You are already friends with this user");
                 } else if ("DECLINED".equals(status)) {
                     System.out.println("Previous friend request was declined - allowing new request");
-                    // Allow sending a new request if previous was declined
-                    // Delete the old declined request first
+
                     String deleteSql = "DELETE FROM users_friends WHERE " +
                                      "((requester_id = ? AND receiver_id = ?) OR (requester_id = ? AND receiver_id = ?)) " +
                                      "AND status = 'DECLINED'";
@@ -419,7 +402,6 @@ public class DataManager {
             return false;
         }
         
-        // Insert new friend request
         String sql = "INSERT INTO users_friends (requester_id, receiver_id, status) VALUES (?, ?, 'PENDING')";
         
         try (Connection conn = DatabaseConnection.getConnection();
@@ -441,7 +423,6 @@ public class DataManager {
         } catch (SQLException e) {
             System.err.println("Error sending friend request: " + e.getMessage());
             e.printStackTrace();
-            // Check if it's a constraint violation (duplicate key)
             if (e.getMessage() != null && e.getMessage().contains("unique constraint")) {
                 System.err.println("Duplicate friend request detected");
             }
@@ -495,7 +476,6 @@ public class DataManager {
         return false;
     }
     
-    // ========== WISH METHODS ==========
     
     public List<Wish> getCurrentUserWishes() {
         List<Wish> wishes = new ArrayList<>();
@@ -572,7 +552,6 @@ public class DataManager {
             System.out.println("Wish creation rows: " + rows);
             
             if (rows > 0) {
-                // Get the last inserted wish ID
                 String getIdSql = "SELECT MAX(wish_id) FROM wishes WHERE user_id = ?";
                 try (PreparedStatement getIdStmt = conn.prepareStatement(getIdSql)) {
                     getIdStmt.setInt(1, currentUser.getUserId());
@@ -596,7 +575,6 @@ public class DataManager {
     public boolean updateWish(int wishId, String name, String description, double price, String imageUrl) {
         User currentUser = requireCurrentUser();
         
-        // First check if the wish is already completed
         String checkSql = "SELECT is_completed FROM wishes WHERE wish_id = ? AND user_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
@@ -609,7 +587,7 @@ public class DataManager {
                     String isCompleted = rs.getString("is_completed");
                     if ("Y".equals(isCompleted)) {
                         System.out.println("Cannot update wish " + wishId + " - it is already completed");
-                        return false; // Cannot update completed wishes
+                        return false; 
                     }
                 } else {
                     System.out.println("Wish " + wishId + " not found or not owned by user");
@@ -646,7 +624,6 @@ public class DataManager {
     public boolean deleteWish(int wishId) {
         User currentUser = requireCurrentUser();
         
-        // First check if the wish is already completed
         String checkSql = "SELECT is_completed FROM wishes WHERE wish_id = ? AND user_id = ?";
         try (Connection conn = DatabaseConnection.getConnection();
              PreparedStatement checkStmt = conn.prepareStatement(checkSql)) {
@@ -659,7 +636,7 @@ public class DataManager {
                     String isCompleted = rs.getString("is_completed");
                     if ("Y".equals(isCompleted)) {
                         System.out.println("Cannot delete wish " + wishId + " - it is already completed");
-                        return false; // Cannot delete completed wishes
+                        return false; 
                     }
                 } else {
                     System.out.println("Wish " + wishId + " not found or not owned by user");
@@ -709,7 +686,6 @@ public class DataManager {
         }
     }
     
-    // ========== NOTIFICATION METHODS ==========
     
     public List<Notification> getUserNotifications() {
         List<Notification> notifications = new ArrayList<>();
@@ -798,7 +774,6 @@ public class DataManager {
         }
     }
     
-    // ========== HELPER METHODS ==========
     
     private Wish createWishFromResultSet(ResultSet rs) throws SQLException {
         Wish wish = new Wish(
@@ -813,7 +788,6 @@ public class DataManager {
         return wish;
     }
     
-    // Get contributor count for a wish
     public int getContributionCount(int wishId) {
         String sql = "SELECT COUNT(DISTINCT user_id) as count FROM users_contributions WHERE wish_id = ?";
         
@@ -834,7 +808,6 @@ public class DataManager {
         return 0;
     }
     
-    // Get total raised amount for a wish
     public double getTotalRaised(int wishId) {
         String sql = "SELECT COALESCE(SUM(amount), 0) as total FROM users_contributions WHERE wish_id = ?";
         
@@ -855,7 +828,6 @@ public class DataManager {
         return 0.0;
     }
     
-    // Test database connection
     public boolean testConnection() {
         try {
             Connection conn = DatabaseConnection.getConnection();
