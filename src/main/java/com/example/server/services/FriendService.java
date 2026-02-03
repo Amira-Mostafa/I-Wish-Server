@@ -42,7 +42,6 @@ public class FriendService {
         }
         System.out.println("Current user set: " + currentUser.getName() + " (ID: " + currentUser.getUserId() + ")");
         
-        // If query is empty, return all users
         List<User> users = dataManager.searchUsers(query != null ? query : "");
         System.out.println("DataManager returned " + users.size() + " users");
         
@@ -108,7 +107,6 @@ public class FriendService {
     }
     
     private void setCurrentUser(int userId) {
-        // Load user from database to set as current user
         String sql = "SELECT user_id, name, email, image_path FROM users WHERE user_id = ?";
         try (var conn = DatabaseConnection.getConnection();
              var pstmt = conn.prepareStatement(sql)) {
