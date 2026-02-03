@@ -32,7 +32,6 @@ public class ContributionService {
             conn = DatabaseConnection.getConnection();
             conn.setAutoCommit(false);
             
-            // 1. Check wish validity
             String checkSql = "SELECT w.user_id as owner_id, w.is_completed, w.price, w.name " +
                             "FROM wishes w " +
                             "WHERE w.wish_id = ?";
@@ -52,7 +51,6 @@ public class ContributionService {
             double wishPrice = rs.getDouble("price");
             String wishName = rs.getString("name");
             
-            // Validation checks
             if (userId == ownerId) {
                 conn.rollback();
                 System.err.println("User cannot contribute to own wish");
@@ -71,7 +69,6 @@ public class ContributionService {
                 return null;
             }
             
-            // Check remaining amount needed
             String checkRemainingSql = "SELECT COALESCE(SUM(uc.amount), 0) as total_raised " +
                                      "FROM users_contributions uc " +
                                      "WHERE uc.wish_id = ?";
