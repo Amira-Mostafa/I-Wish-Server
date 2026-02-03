@@ -49,7 +49,6 @@ public class ServerController {
         stopButton.setDisable(true);
     }
 
-    // Automatically stop server when window closes
     @FXML
     public void initialize() {
         javafx.application.Platform.runLater(() -> {
