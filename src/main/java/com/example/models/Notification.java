@@ -13,7 +13,6 @@ public class Notification {
     private String isRead;
     private LocalDateTime createdAt;
     
-    // Constructors
     public Notification() {
         this.createdAt = LocalDateTime.now();
     }
@@ -28,12 +27,10 @@ public class Notification {
         this.createdAt = LocalDateTime.now();
     }
     
-    // Constructor without wishId (for friend requests)
     public Notification(int notificationId, int receiverId, String type, String message, String isRead) {
         this(notificationId, receiverId, null, type, message, isRead);
     }
     
-    // Getters and Setters
     public int getNotificationId() { return notificationId; }
     public void setNotificationId(int notificationId) { this.notificationId = notificationId; }
     
@@ -58,7 +55,6 @@ public class Notification {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
     
-    // Helper method to get time ago
     public String getTimeAgo() {
         LocalDateTime now = LocalDateTime.now();
         long minutes = ChronoUnit.MINUTES.between(createdAt, now);
