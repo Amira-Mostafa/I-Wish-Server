@@ -7,7 +7,6 @@ public class User {
     private String passwordHash;
     private String imagePath;
     
-    // Constructors
     public User() {}
     
     public User(int userId, String name, String email, String imagePath) {
@@ -21,7 +20,6 @@ public class User {
         this(userId, name, email, "");
     }
     
-    // Getters and Setters
     public int getUserId() { return userId; }
     public void setUserId(int userId) { this.userId = userId; }
     
