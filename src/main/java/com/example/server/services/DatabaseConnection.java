@@ -9,14 +9,11 @@ public class DatabaseConnection {
     private static final String URL = "jdbc:oracle:thin:@localhost:1521:XE";
     private static final String USERNAME = "wish_app";
     private static final String PASSWORD = "123";
-    // private static final String USERNAME = "IWish_new";
-    // private static final String PASSWORD = "IWish123";
     
     
     public static Connection getConnection() throws SQLException {
         if (connection == null || connection.isClosed()) {
             try {
-                // Load Oracle JDBC driver
                 Class.forName("oracle.jdbc.driver.OracleDriver");
                 connection = DriverManager.getConnection(URL, USERNAME, PASSWORD);
                 System.out.println("Database connected successfully!");
