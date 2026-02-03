@@ -10,7 +10,6 @@ public class Wish {
     private String imagePath;
     private String isCompleted;
     
-    // Constructors
     public Wish() {}
     
     public Wish(int wishId, int userId, String name, String description, double price, String imagePath, String isCompleted) {
@@ -21,15 +20,13 @@ public class Wish {
         this.price = price;
         this.imagePath = imagePath;
         this.isCompleted = isCompleted;
-        this.raisedAmount = 0.0; // Initialize to 0
+        this.raisedAmount = 0.0;
     }
     
-    // Constructor without imagePath
     public Wish(int wishId, int userId, String name, String description, double price, String isCompleted) {
         this(wishId, userId, name, description, price, "", isCompleted);
     }
     
-    // Getters and Setters
     public int getWishId() { return wishId; }
     public void setWishId(int wishId) { this.wishId = wishId; }
     
@@ -57,7 +54,6 @@ public class Wish {
     public boolean isCompleted() { return "Y".equals(isCompleted); }
     public void setCompleted(boolean completed) { this.isCompleted = completed ? "Y" : "N"; }
     
-    // Helper methods
     public double getRemainingAmount() {
         return Math.max(0, price - raisedAmount);
     }
