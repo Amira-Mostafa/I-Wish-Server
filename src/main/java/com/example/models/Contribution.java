@@ -10,7 +10,6 @@ public class Contribution {
     private String message;
     private LocalDateTime contributedAt;
     
-    // Constructors
     public Contribution() {
         this.contributedAt = LocalDateTime.now();
     }
@@ -24,7 +23,6 @@ public class Contribution {
         this.contributedAt = LocalDateTime.now();
     }
     
-    // Getters and Setters
     public int getContributionId() { return contributionId; }
     public void setContributionId(int contributionId) { this.contributionId = contributionId; }
     
