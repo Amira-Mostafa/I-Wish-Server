@@ -288,34 +288,3 @@ BEGIN
     END LOOP;
 END;
 /
-
-CREATE OR REPLACE TRIGGER contribution_notify_owner_trg
-AFTER INSERT ON users_contributions
-FOR EACH ROW
-DECLARE
-    v_owner_id users.user_id%TYPE;
-    v_wish_name wishes.name%TYPE;
-BEGIN
-    SELECT user_id, name
-    INTO v_owner_id, v_wish_name
-    FROM wishes
-    WHERE wish_id = :NEW.wish_id;
-
-    INSERT INTO notifications (
-        notification_id,
-        receiver_id,
-        wish_id,
-        type,
-        message,
-        is_read
-    )
-    VALUES (
-        notifications_seq.NEXTVAL,
-        v_owner_id,
-        :NEW.wish_id,
-        'CONTRIBUTION',
-       'Someone contributed to your wish "' || v_wish_name || '" 🎁',
-        'N'
-    );
-END;
-/
