@@ -7,16 +7,12 @@ import com.example.models.Wish;
 
 public class WishService {
     
-    // Remove the singleton pattern from DataManager or create new instance per call
     public String getMyWishes(int userId) {
         try {
-            // Get connection first
             var conn = DatabaseConnection.getConnection();
             
-            // Create DataManager and set user
             DataManager dataManager = DataManager.getInstance();
             
-            // Get user from database
             String sql = "SELECT user_id, name, email, image_path FROM users WHERE user_id = ?";
             try (var pstmt = conn.prepareStatement(sql)) {
                 pstmt.setInt(1, userId);
